@@ -16,8 +16,8 @@ public class UsuarioSIB implements UsuarioSEI {
     @Override
     public Usuario consultarUsuario(Long idUsuario) {
         UsuarioDAO usuarioDAO = new UsuarioDaoimpl(EntityManagerUtil.getManager());
+        System.out.println(usuarioDAO.FindById(idUsuario));
         Usuario usuario = usuarioDAO.FindById(idUsuario);
-
         return usuario;
     }
 }

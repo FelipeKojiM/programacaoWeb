@@ -1,5 +1,4 @@
 package br.unipar.programacaointernet.servicecep.util;
-
 import br.unipar.programacaointernet.servicecep.util.dao.EnderecoDAO;
 import br.unipar.programacaointernet.servicecep.util.dao.EnderecoDaoimpl;
 import br.unipar.programacaointernet.servicecep.util.dao.UsuarioDAO;
@@ -16,66 +15,96 @@ import java.util.Scanner;
 
 public class Main {
 
-    public static void main (String[] arg){
+    public static void main (String[] arg) {
 
-        try{
-            EntityManagerUtil.getEntityManagerFactory();
-            System.out.println("Pressione \n" +
-                    "(1) para cadastrar Usuarios\n" +
-                    "(2) para editar Usuarios\n" +
-                    "(3) para deletar Usuarios\n" +
-                    "(4) para buscar todos os Usuarios\n" +
-                    "(5) para salvar um endereco\n");
-            Scanner scanner = new Scanner(System.in);
-            int x = scanner.nextInt();
 
-            switch (x){
-                case 1: salvarUsuario();
-                    return;
-                case 2: editarUsuario();
-                    return;
-                case 3:deletarUsuario();
-                    return;
-                case 4:buscarTodosUsuarios();
-                    return;
-                case 5:salvarEndereco();
-                    return;
-            }
+               try {
+                   EntityManagerUtil.getEntityManagerFactory();
+                   System.out.println("Pressione: \n" +
+                           "(1) para cadastrar Usuarios\n" +
+                           "(2) para editar Usuarios\n" +
+                           "(3) para deletar Usuarios\n" +
+                           "(4) para buscar todos os Usuarios\n" +
+                           "(5) para salvar um endereco\n" +
+                           "(6) para buscar os enderecos salvos\n" +
+                           "Digite apenas números válidos!: ");
+                   Scanner scanner = new Scanner(System.in);
+                   int x = scanner.nextInt();
 
-            EntityManagerUtil.closeEntityManagerFactory();
+                   switch (x) {
+                       case 1:
+                           salvarUsuario();
+                       case 2:
+                           editarUsuario();
+                       case 3:
+                           deletarUsuario();
+                       case 4:
+                           buscarTodosUsuarios();
+                       case 5:
+                           salvarEndereco();
+                       case 6:
+                           mostrarTodosEnderecos();
+                   }
 
-        }catch (Exception e){
-            System.out.println(e);
-        }
+                   EntityManagerUtil.closeEntityManagerFactory();
+
+               } catch (Exception e) {
+                   System.out.println(e);
+               }
+
     }
 
     private static void salvarUsuario(){
         UsuarioDAO usuarioDao = new UsuarioDaoimpl(EntityManagerUtil.getManager());
         Usuario usuario = new Usuario();
+        Scanner scanner = new Scanner(System.in);
 
-        usuario.setNome("Zézinho");
-        usuario.setLogin("zezinho123");
-        usuario.setSenha("123");
+        System.out.println("Nome: ");
+        String nome = scanner.next();
+        System.out.println("Login: ");
+        String login = scanner.next();
+        System.out.println("Senha: ");
+        String senha = scanner.next();
+
+        usuario.setNome(nome);
+        usuario.setLogin(login);
+        usuario.setSenha(senha);
 
         usuarioDao.save(usuario);
     }
 
     private static void editarUsuario() {
         UsuarioDAO usuarioDao = new UsuarioDaoimpl(EntityManagerUtil.getManager());
-        Usuario usuario = usuarioDao.FindById(1L);
+        Scanner scanner = new Scanner(System.in);
 
-        usuario.setNome("Bruninho");
-        usuario.setLogin("bruninho123");
-        usuario.setSenha("321");
+        System.out.println("Digite o ID para deletar: ");
+        Long id = scanner.nextLong();
+
+        Usuario usuario = usuarioDao.FindById(id);
+
+        System.out.println("Nome: ");
+        String nome = scanner.next();
+        System.out.println("Login: ");
+        String login = scanner.next();
+        System.out.println("Senha: ");
+        String senha = scanner.next();
+
+        usuario.setNome(nome);
+        usuario.setLogin(login);
+        usuario.setSenha(senha);
 
         usuarioDao.update(usuario);
     }
 
     private static void deletarUsuario(){
         UsuarioDAO usuarioDAO = new UsuarioDaoimpl(EntityManagerUtil.getManager());
+        Scanner scanner = new Scanner(System.in);
 
-         Usuario usuario = usuarioDAO.FindById(1L);
-         usuarioDAO.delete(usuario);
+        System.out.println("Digite o ID para deletar: ");
+        Long id = scanner.nextLong();
+
+        Usuario usuario = usuarioDAO.FindById(id);
+        usuarioDAO.delete(usuario);
 
     }
 
@@ -89,14 +118,7 @@ public class Main {
         }
     }
 
-    private static void buscarUsuariosPorId(){
-        UsuarioDAO usuarioDAO = new UsuarioDaoimpl(EntityManagerUtil.getManager());
-        //List<Usuario> usuarios = (List<Usuario> UsuarioDAO.FindById(1l));
-
-            System.out.println("Usuarios encontrados com sucesso!");
-    }
-
-    private static Endereco getViaCep(String cep) throws Exception{
+    public static Endereco getViaCep(String cep) throws Exception{
         URL url = new URL("Http://viacep.com.br/ws/"+cep.replace("-", "").replace("-", "")+"/xml/");
 
         BufferedReader in = new BufferedReader (new InputStreamReader(url.openStream()));
@@ -112,12 +134,24 @@ public class Main {
     private static void salvarEndereco(){
         try{
             EnderecoDAO enderecoDAO = new EnderecoDaoimpl( EntityManagerUtil.getManager());
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Digite o Cep para cadastrar: ");
+            String cep = scanner.next();
 
-            enderecoDAO.save(getViaCep("85813090"));
+            enderecoDAO.save(getViaCep(cep));
 
         }catch (Exception e){
             throw new RuntimeException(e);
         }
+    }
 
+    private static void mostrarTodosEnderecos(){
+        EnderecoDAO enderecoDAO = new EnderecoDaoimpl(EntityManagerUtil.getManager());
+
+        List<Endereco> enderecos = enderecoDAO.findAll();
+
+        for(Endereco endereco : enderecos){
+            System.out.println(endereco.toString());
+        }
     }
 }

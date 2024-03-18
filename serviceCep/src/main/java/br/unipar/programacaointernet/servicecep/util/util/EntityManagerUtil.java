@@ -19,6 +19,9 @@ public class EntityManagerUtil {
     }
 
     public static EntityManager getManager(){
+        if (emf == null){
+            getEntityManagerFactory();
+        }
         if(em == null || !em.isOpen()){
             em = emf.createEntityManager();
             System.out.println("Entity manager aberta");

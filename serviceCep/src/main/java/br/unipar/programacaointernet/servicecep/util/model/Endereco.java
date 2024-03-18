@@ -60,4 +60,5 @@ public class Endereco {
                     ", siafi='" + siafi + '\'' +
                     '}';
         }
+
 }
